@@ -1,0 +1,2 @@
+# values.yaml for hello-nginx Helm chart
+nginxPort: 80

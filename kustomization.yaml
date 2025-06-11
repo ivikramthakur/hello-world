@@ -1,0 +1,8 @@
+resources:
+  - nginx-helloworld.yaml
+
+configMapGenerator:
+  - name: nginx-config
+    namespace: default
+    files:
+      - nginx.conf

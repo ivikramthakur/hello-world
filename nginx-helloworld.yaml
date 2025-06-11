@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hello-nginx
+  namespace: default
+  labels:
+    app: hello-nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hello-nginx
+  template:
+    metadata:
+      labels:
+        app: hello-nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginxdemos/hello:0.4-plain-text #nginx:1.27.5 # Change the tag to test different versions
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: nginx-config-volume
+          mountPath: /etc/nginx/nginx.conf
+          subPath: nginx.conf
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "250m"
+          requests:
+            memory: "64Mi"
+            cpu: "100m"
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 10
+          periodSeconds: 20
+      volumes:
+      - name: nginx-config-volume
+        configMap:
+          name: nginx-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hello-nginx
+  namespace: default
+spec:
+  selector:
+    app: hello-nginx
+  ports:
+  - protocol: TCP
+    port: 8181
+    targetPort: 80
+  type: NodePort
